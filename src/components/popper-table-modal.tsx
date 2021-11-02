@@ -1,11 +1,13 @@
 import { ReactElement, useRef } from 'react'
 import cn, { Argument } from 'classnames'
 import noop from 'lodash/noop'
+import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 
 import { ViewTypeEnum } from '@core/enum/view-type-enum'
 import { useOutsideClick } from '@core/hooks/use-outside-click'
 import { t } from '@i18n'
+import datasetStore from '@store/dataset'
 import zoneStore from '@store/filterZone'
 import { Button } from '@ui/button'
 import { InputSearch } from '@components/input-search'
@@ -61,16 +63,17 @@ export const PopperTableModal = observer(
       isGenesList && zoneStore.unselectAllGenesList()
       isSamples && zoneStore.unselectAllSamples()
       isTags && zoneStore.unselectAllTags()
+      datasetStore.fetchWsListAsync()
     }
 
     const defintSelectedAmount = () => {
-      if (isGenes) return zoneStore.selectedGenes.length
+      if (isGenes) return toJS(zoneStore.selectedGenes).length
 
-      if (isGenesList) return zoneStore.selectedGenesList.length
+      if (isGenesList) return toJS(zoneStore.selectedGenesList).length
 
-      if (isSamples) return zoneStore.selectedSamples.length
+      if (isSamples) return toJS(zoneStore.selectedSamples).length
 
-      if (isTags) return zoneStore.selectedTags.length
+      if (isTags) return toJS(zoneStore.selectedTags).length
     }
 
     const handleClose = () => {

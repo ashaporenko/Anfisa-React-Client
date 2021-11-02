@@ -7,11 +7,20 @@ import dtreeStore from '@store/dtree'
 import filterStore from '@store/filter'
 import { Button } from '@ui/button'
 import { DropDown } from '@ui/dropdown'
+import { moveActionHistory } from '@utils/moveActionHistory'
 import { FilterControlQueryBuilder } from './filter-control-query-builder'
 import { FilterControlRefiner } from './filter-control-refiner'
 
 export const FilterControl = observer(
   (): ReactElement => {
+    const isFirstActionHistoryIndex = dtreeStore.actionHistoryIndex === 0
+
+    const isLastActionHistoryIndex =
+      dtreeStore.actionHistoryIndex + 1 === dtreeStore.actionHistory.length
+
+    const isUndoLocked = isFirstActionHistoryIndex
+    const isRedoLocked = isLastActionHistoryIndex
+
     return (
       <Fragment>
         <div className="flex items-center w-full mt-5">
@@ -47,6 +56,20 @@ export const FilterControl = observer(
                 onClick={() => dtreeStore.openModalTextEditor()}
               />
             )}
+            <Button
+              text="Undo"
+              className="ml-2 hover:bg-blue-bright"
+              hasBackground={false}
+              disabled={isUndoLocked}
+              onClick={() => moveActionHistory(-1)}
+            />
+            <Button
+              text="Redo"
+              className="ml-2 hover:bg-blue-bright"
+              hasBackground={false}
+              disabled={isRedoLocked}
+              onClick={() => moveActionHistory(1)}
+            />
           </div>
         </div>
       </Fragment>

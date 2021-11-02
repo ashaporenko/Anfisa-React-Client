@@ -5,6 +5,7 @@ import { makeAutoObservable, runInAction, toJS } from 'mobx'
 
 import { DtreeStatType, FilterCountsType, StatList } from '@declarations'
 import { getApiUrl } from '@core/get-api-url'
+import { addToActionHistory } from '@utils/addToActionHistory'
 import { calculateAcceptedVariants } from '@utils/calculateAcceptedVariants'
 import { fetchStatunitsAsync } from '@utils/fetchStatunitsAsync'
 import { getStepDataAsync } from '@utils/getStepDataAsync'
@@ -110,6 +111,9 @@ class DtreeStore {
   requestData: IRequestData[] = []
 
   modalSource = ''
+
+  actionHistory: URLSearchParams[] = []
+  actionHistoryIndex = -1
 
   constructor() {
     makeAutoObservable(this)
@@ -233,7 +237,9 @@ class DtreeStore {
     })
   }
 
-  async fetchDtreeSetAsync(body: URLSearchParams) {
+  async fetchDtreeSetAsync(body: URLSearchParams, shouldSaveInHistory = true) {
+    if (shouldSaveInHistory) addToActionHistory(body)
+
     this.setIsCountsReceived(false)
 
     const response = await fetch(getApiUrl(`dtree_set`), {
@@ -290,6 +296,18 @@ class DtreeStore {
       if (result.scenario) this.scenario = result.scenario
 
       if (result.request) this.request = result.request
+    })
+  }
+
+  setActionHistory(updatedActionHistory: URLSearchParams[]) {
+    runInAction(() => {
+      this.actionHistory = [...updatedActionHistory]
+    })
+  }
+
+  setActionHistoryIndex(updatedIndex: number) {
+    runInAction(() => {
+      this.actionHistoryIndex = updatedIndex
     })
   }
 
