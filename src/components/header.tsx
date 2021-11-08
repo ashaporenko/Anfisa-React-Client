@@ -60,7 +60,6 @@ export const Header = observer(
       }
 
       datasetStore.initDatasetAsync(dsName)
-      dirinfoStore.fetchDsinfoAsync(dsName)
     }
 
     const copyLink = () => {

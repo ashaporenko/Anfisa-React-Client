@@ -3,7 +3,9 @@ import { useHistory } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { observer } from 'mobx-react-lite'
 
+import { PatnNameEnum } from '@core/enum/path-name-enum'
 import { t } from '@i18n'
+import datasetStore from '@store/dataset'
 import dtreeStore from '@store/dtree'
 import operations from '@store/operations'
 import { Routes } from '@router/routes.enum'
@@ -19,10 +21,12 @@ export const ModalSaveDataset = observer(() => {
   const [value, setValue] = useState<string>('')
   const [error, setError] = useState<string>('')
 
+  const pathName = history.location.pathname
+
   const isDone = operations.savingStatus[1] === 'Done'
 
   const handleClickAsync = async () => {
-    const result = await operations.saveDatasetAsync(value)
+    const result = await operations.saveDatasetAsync(value, pathName)
 
     if (!result.ok && result.message) {
       setError(result.message)
@@ -34,8 +38,20 @@ export const ModalSaveDataset = observer(() => {
   }
 
   const handleClose = () => {
+    if (!value) {
+      dtreeStore.closeModalSaveDataset()
+      operations.resetSavingStatus()
+
+      return
+    }
+
     if (operations.isCreationOver) {
       dtreeStore.closeModalSaveDataset()
+
+      if (pathName === PatnNameEnum.Ws) {
+        datasetStore.initDatasetAsync(value)
+      }
+
       operations.resetSavingStatus()
     } else {
       toast.warning(t('general.creaitionIsInProcess'), {
@@ -53,6 +69,9 @@ export const ModalSaveDataset = observer(() => {
   const handleOpenDataset = () => {
     isDone && history.push(`${Routes.WS}?ds=${value}`)
     dtreeStore.closeModalSaveDataset()
+    datasetStore.initDatasetAsync(value)
+
+    operations.resetSavingStatus()
   }
 
   return (

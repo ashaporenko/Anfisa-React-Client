@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 
 import { ExportTypeEnum } from '@core/enum/export-type.enum'
+import { PatnNameEnum } from '@core/enum/path-name-enum'
 import { getApiUrl } from '@core/get-api-url'
 import dtreeStore from '@store/dtree'
 import datasetStore from './dataset'
@@ -133,16 +134,25 @@ class OperationsStore {
 
   async saveDatasetAsync(
     wsName: string,
+    pathName: string,
   ): Promise<{ ok: boolean; message?: string }> {
     this.resetIsCreationOver()
 
     const body = new URLSearchParams({
       ds: datasetStore.datasetName,
       ws: wsName,
-      code: dtreeStore.dtreeCode,
     })
 
-    const compareValue = dtreeStore.acceptedVariants
+    const compareValue =
+      pathName === PatnNameEnum.Filter
+        ? dtreeStore.acceptedVariants
+        : datasetStore.statAmount[0]
+
+    if (pathName === PatnNameEnum.Filter) {
+      body.append('code', dtreeStore.dtreeCode)
+    } else {
+      body.append('filter', datasetStore.activePreset)
+    }
 
     if (!(compareValue > 0 && compareValue < 9000)) {
       this.setIsCreationOver()
