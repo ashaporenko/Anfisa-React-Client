@@ -1,6 +1,7 @@
 import Checkbox from 'react-three-state-checkbox'
 import { observer } from 'mobx-react-lite'
 
+import datasetStore from '@store/dataset'
 import zoneStore from '@store/filterZone'
 
 interface Props {
@@ -24,6 +25,7 @@ export const FilterItemList = observer(
         isGenesList && zoneStore.removeGenesList(name)
         isSamples && zoneStore.removeSample(name)
         isTags && zoneStore.removeTag(name)
+        datasetStore.fetchWsListAsync()
       }
     }
 

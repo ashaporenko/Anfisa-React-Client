@@ -32,13 +32,13 @@ class ZoneStore {
     this.selectedGenes = this.selectedGenes.filter(gene => geneName !== gene)
 
     datasetStore.removeZone(['Symbol', this.selectedGenes])
-    datasetStore.fetchWsListAsync()
+    // datasetStore.fetchWsListAsync()
   }
 
   unselectAllGenes() {
     this.selectedGenes = []
     datasetStore.addZone(['Symbol', zoneStore.selectedGenes])
-    datasetStore.fetchWsListAsync()
+    // datasetStore.fetchWsListAsync()
   }
 
   addGenesList(gene: string) {
@@ -51,13 +51,13 @@ class ZoneStore {
     )
 
     datasetStore.removeZone(['Panels', this.selectedGenesList])
-    datasetStore.fetchWsListAsync()
+    // datasetStore.fetchWsListAsync()
   }
 
   unselectAllGenesList() {
     this.selectedGenesList = []
     datasetStore.addZone(['Panels', zoneStore.selectedGenesList])
-    datasetStore.fetchWsListAsync()
+    // datasetStore.fetchWsListAsync()
   }
 
   addSample(sample: string) {
@@ -70,7 +70,7 @@ class ZoneStore {
     )
 
     datasetStore.removeZone(['Has_Variant', this.selectedSamples])
-    datasetStore.fetchWsListAsync()
+    // datasetStore.fetchWsListAsync()
   }
 
   paintSelectedSamples() {
@@ -95,7 +95,7 @@ class ZoneStore {
     this.isMother = false
     this.isProband = false
     datasetStore.addZone(['Has_Variant', zoneStore.selectedSamples])
-    datasetStore.fetchWsListAsync()
+    // datasetStore.fetchWsListAsync()
   }
 
   addTag(tagName: string) {
@@ -108,7 +108,7 @@ class ZoneStore {
     tagName === '_note' && this.resetModeWithNotes()
 
     datasetStore.removeZone(['_tags', this.selectedTags])
-    datasetStore.fetchWsListAsync()
+    // datasetStore.fetchWsListAsync()
 
     // TODO: removed this.fetchTagSelectAsync()
   }
