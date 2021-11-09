@@ -14,8 +14,12 @@ export class VariantStore {
   generalTags: string[] = []
   optionalTags: string[] = []
   checkedTags: string[] = []
+  tagsWithNotes: any = {}
+  currentTag = ''
   noteText = ''
   isActiveVariant = false
+
+  isModalNotesVisible = false
 
   constructor() {
     makeAutoObservable(this)
@@ -156,7 +160,7 @@ export class VariantStore {
       this.generalTags = get(tagsData, 'check-tags')
       this.optionalTags = optionalTags
       this.checkedTags = checkedTags
-
+      this.tagsWithNotes = get(tagsData, 'rec-tags')
       this.noteText = tagsData['rec-tags']['_note']
       this.initRecordsDisplayConfig()
     })
@@ -209,6 +213,36 @@ export class VariantStore {
       this.variant = variant
       this.initRecordsDisplayConfig()
     })
+  }
+
+  updateTagsWithNotes(tagWithNote: any[], operation = 'add') {
+    if (operation === 'add') {
+      let keyProp = ''
+
+      for (const key in this.tagsWithNotes) {
+        if (key === tagWithNote[0]) {
+          keyProp = key
+        }
+      }
+
+      keyProp
+        ? (this.tagsWithNotes[keyProp] = tagWithNote[1])
+        : (this.tagsWithNotes[tagWithNote[0]] = tagWithNote[1])
+    } else {
+      delete this.tagsWithNotes[tagWithNote[0]]
+    }
+  }
+
+  showModalNotes() {
+    this.isModalNotesVisible = true
+  }
+
+  hideModalNotes() {
+    this.isModalNotesVisible = false
+  }
+
+  setCurrentTag(tag: string) {
+    this.currentTag = tag
   }
 }
 

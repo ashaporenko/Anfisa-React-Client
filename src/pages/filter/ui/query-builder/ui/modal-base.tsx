@@ -8,7 +8,7 @@ const ModalView = styled.div`
   align-items: center;
   height: 100%;
   width: 100%;
-  z-index: 10;
+  z-index: 1000;
   background: rgba(0, 0, 0, 0.8);
 `
 

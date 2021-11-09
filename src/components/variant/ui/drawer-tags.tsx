@@ -2,18 +2,21 @@ import { useRef, useState } from 'react'
 import Checkbox from 'react-three-state-checkbox'
 import { toast } from 'react-toastify'
 import classNames from 'classnames'
-import { get } from 'lodash'
+import get from 'lodash/get'
+import isBoolean from 'lodash/isBoolean'
 import { observer } from 'mobx-react-lite'
 
 import { useOutsideClick } from '@core/hooks/use-outside-click'
 import { t } from '@i18n'
+import datasetStore from '@store/dataset'
+import filterStore from '@store/filterZone'
 import variantStore from '@store/variant'
 import { Button } from '@ui/button'
 import { Input } from '@ui/input'
 import { PopperButton } from '@components/popper-button'
 import { TagsContainer } from './tags-container'
 
-const DrawerNoteButton = observer(({ refEl, onClick }: any) => {
+const DrawerTagButton = observer(({ refEl, onClick }: any) => {
   return (
     <Button
       refEl={refEl}
@@ -26,7 +29,13 @@ const DrawerNoteButton = observer(({ refEl, onClick }: any) => {
   )
 })
 
-const DrawerNoteModal = observer(({ close }: any) => {
+const DrawerTagModal = observer(({ close }: any) => {
+  const ref = useRef(null)
+
+  useOutsideClick(ref, () => {
+    !variantStore.isModalNotesVisible && close()
+  })
+
   const genInfo = get(variantStore, 'variant[0].rows[0].cells[0][0]', '')
   const hg19 = get(variantStore, 'variant[0].rows[1].cells[0][0]', '')
 
@@ -36,14 +45,14 @@ const DrawerNoteModal = observer(({ close }: any) => {
 
   const [customTag, setCustomTag] = useState<string>('')
 
-  const ref = useRef(null)
-
-  useOutsideClick(ref, () => close())
-
   const handleCheck = (checked: boolean, item: string) => {
-    checked
-      ? setCheckedTags(prev => [...prev, item])
-      : setCheckedTags(prev => prev.filter(tag => tag !== item))
+    if (checked) {
+      setCheckedTags(prev => [...prev, item])
+      variantStore.updateTagsWithNotes([item, true])
+    } else {
+      setCheckedTags(prev => prev.filter(tag => tag !== item))
+      variantStore.updateTagsWithNotes([item, true], 'remove')
+    }
   }
 
   const handleSetCustomTag = () => {
@@ -66,14 +75,26 @@ const DrawerNoteModal = observer(({ close }: any) => {
   const handleSaveTags = () => {
     let params = ''
 
-    checkedTags.map((tag, index) => {
-      params += `"${tag}":${true}`
+    Object.entries(variantStore.tagsWithNotes).map((tagData, index) => {
+      params += `"${tagData[0]}":${
+        isBoolean(tagData[1]) ? tagData[1] : `"${tagData[1]}"`
+      }`
 
-      if (checkedTags[index + 1]) params += `,`
+      if (Object.entries(variantStore.tagsWithNotes)[index + 1]) {
+        params += `,`
+      }
     })
 
     variantStore.fetchSelectedTagsAsync(params)
+    filterStore.fetchTagSelectAsync()
+    datasetStore.fetchWsTagsAsync()
+    datasetStore.fetchWsListAsync()
     close()
+  }
+
+  const handleClick = (tag: string) => {
+    variantStore.showModalNotes()
+    variantStore.setCurrentTag(tag)
   }
 
   const tags = [...variantStore.generalTags, ...variantStore.optionalTags]
@@ -103,6 +124,13 @@ const DrawerNoteModal = observer(({ close }: any) => {
             />
 
             <span className="text-12 ml-1">{tag}</span>
+
+            <span
+              className="ml-2 cursor-pointer hover:text-blue-bright"
+              onClick={() => handleClick(tag)}
+            >
+              {Object.keys(variantStore.tagsWithNotes).includes(tag) && `(#)`}
+            </span>
           </div>
         ))}
       </div>
@@ -150,8 +178,8 @@ export const DrawerTags = observer(() => {
 
       <div className="mr-3">
         <PopperButton
-          ButtonElement={DrawerNoteButton}
-          ModalElement={DrawerNoteModal}
+          ButtonElement={DrawerTagButton}
+          ModalElement={DrawerTagModal}
         />
       </div>
 
