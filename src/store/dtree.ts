@@ -9,11 +9,12 @@ import { addToActionHistory } from '@utils/addToActionHistory'
 import { calculateAcceptedVariants } from '@utils/calculateAcceptedVariants'
 import { fetchStatunitsAsync } from '@utils/fetchStatunitsAsync'
 import { getStepDataAsync } from '@utils/getStepDataAsync'
+import { makeStepActive } from '@utils/makeStepActive'
 import datasetStore from './dataset'
 
 export type IStepData = {
   step: number
-  groups?: any
+  groups: any[]
   negate?: boolean
   excluded: boolean
   isActive: boolean
@@ -127,6 +128,7 @@ class DtreeStore {
     const initialStepData = [
       {
         step: 1,
+        groups: [],
         excluded: true,
         isActive: true,
         isReturnedVariantsActive: false,
@@ -379,10 +381,13 @@ class DtreeStore {
     })
 
     if (type === 'BEFORE') {
-      const startFilterCounts = this.stepData[index - 1].finishFilterCounts
+      const startFilterCounts =
+        this.stepData[index - 1]?.finishFilterCounts ??
+        this.stepData[index]?.finishFilterCounts
 
       this.stepData.splice(index, 0, {
         step: index,
+        groups: [],
         excluded: true,
         isActive: true,
         isReturnedVariantsActive: false,
@@ -397,6 +402,7 @@ class DtreeStore {
 
       this.stepData.splice(index + 1, 0, {
         step: index,
+        groups: [],
         excluded: true,
         isActive: true,
         isReturnedVariantsActive: false,
@@ -427,6 +433,7 @@ class DtreeStore {
     this.stepData.map((item, currNo: number) => {
       item.step = currNo + 1
     })
+    makeStepActive(this.stepData.length - 1)
   }
 
   negateStep(index: number) {

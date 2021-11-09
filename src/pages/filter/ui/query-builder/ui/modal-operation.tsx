@@ -35,10 +35,7 @@ export const ModalOperation = observer(
     const deleteStep = (stepIndex: number) => {
       const currentStep = dtreeStore.stepData[stepIndex]
 
-      const stepHasAttribute = Object.prototype.hasOwnProperty.call(
-        currentStep,
-        'groups',
-      )
+      const stepHasAttribute = currentStep.groups.length > 0
 
       stepHasAttribute
         ? changeStep(stepIndex, 'DELETE')

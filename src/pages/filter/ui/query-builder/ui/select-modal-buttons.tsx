@@ -14,7 +14,7 @@ interface IProps {
   handleModals: () => void
   handleClose: () => void
   handleModalJoin: () => void
-  currentGroup: string
+  currentGroup: any[]
   disabled: any
   handleAddAttribute: (action: ActionType) => void
 }
