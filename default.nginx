@@ -15,13 +15,13 @@ server {
 
     location ~ /app/ui/images {
         #rewrite ^/app/ui/images/(.*)$ /$1 break;
-        proxy_pass anfisa-backend:80/anfisa/app/ui/images;
+        proxy_pass http://anfisa-backend:80/anfisa/app/ui/images;
         #root /opt/forome/anfisa.demov6/int_ui/images;
     }
 
     location ~ /app/ui {
         #rewrite ^/app/ui/(.*)$ /$1 break;
-        proxy_pass anfisa-backend:80/anfisa/app/ui;
+        proxy_pass http://anfisa-backend:80/anfisa/app/ui;
         #root /opt/forome/anfisa.demov6/ui;
     }
 
