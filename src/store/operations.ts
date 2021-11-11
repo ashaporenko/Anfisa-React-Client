@@ -1,11 +1,11 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 
 import { ExportTypeEnum } from '@core/enum/export-type.enum'
+import { PatnNameEnum } from '@core/enum/path-name-enum'
 import { getApiUrl } from '@core/get-api-url'
 import dtreeStore from '@store/dtree'
 import datasetStore from './dataset'
 import dirinfoStore from './dirinfo'
-import variantStore from './variant'
 
 class OperationsStore {
   savingStatus: [boolean, string] = [false, '']
@@ -13,25 +13,6 @@ class OperationsStore {
 
   constructor() {
     makeAutoObservable(this)
-  }
-
-  async createNoteAsync(noteText: string) {
-    const body = new URLSearchParams({
-      ds: datasetStore.datasetName,
-      rec: String(variantStore.index),
-      tags: JSON.stringify({
-        ...variantStore.checkedTags.reduce((p, c) => ({ ...p, [c]: true }), {}),
-        _note: noteText,
-      }),
-    })
-
-    await fetch(getApiUrl(`ws_tags`), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body,
-    })
   }
 
   async macroTaggingAsync({ tag, off }: { tag: string; off?: boolean }) {
@@ -133,16 +114,25 @@ class OperationsStore {
 
   async saveDatasetAsync(
     wsName: string,
+    pathName: string,
   ): Promise<{ ok: boolean; message?: string }> {
     this.resetIsCreationOver()
 
     const body = new URLSearchParams({
       ds: datasetStore.datasetName,
       ws: wsName,
-      code: dtreeStore.dtreeCode,
     })
 
-    const compareValue = dtreeStore.acceptedVariants
+    const compareValue =
+      pathName === PatnNameEnum.Filter
+        ? dtreeStore.acceptedVariants
+        : datasetStore.statAmount[0]
+
+    if (pathName === PatnNameEnum.Filter) {
+      body.append('code', dtreeStore.dtreeCode)
+    } else {
+      body.append('filter', datasetStore.activePreset)
+    }
 
     if (!(compareValue > 0 && compareValue < 9000)) {
       this.setIsCreationOver()

@@ -53,10 +53,20 @@ class DatasetStore {
     this.isXL = value
   }
 
+  setIndexTabReport(value: number): void {
+    this.indexTabReport = value
+  }
+
+  setIndexFilteredNo(value: number): void {
+    this.indexFilteredNo = value
+  }
+
+  setFilteredNo(value: number[]): void {
+    this.filteredNo = value
+  }
+
   setTableOffest(value: number) {
-    runInAction(() => {
-      this.offset = value
-    })
+    this.offset = value
   }
 
   setIsFilterDisabled(value: boolean) {
@@ -69,6 +79,10 @@ class DatasetStore {
 
   setIsLoadingTabReport(value: boolean) {
     this.isLoadingTabReport = value
+  }
+
+  setZoneIndex(zone: [string, string[]], index: number): void {
+    this.zone[index] = zone
   }
 
   setDatasetName(datasetName: string) {
@@ -98,7 +112,7 @@ class DatasetStore {
   removeZone(zone: [string, string[]]) {
     this.zone.map((item, index) => {
       if (item[0] === zone[0]) {
-        this.zone[index] = zone
+        this.setZoneIndex(zone, index)
       }
     })
 
@@ -113,8 +127,6 @@ class DatasetStore {
     if (!conditions[0]) {
       this.conditions = []
       await this.fetchDsStatAsync()
-
-      // return await this.fetchWsListAsync()
     }
 
     const groupCondtionsIndex = this.conditions.findIndex(
@@ -130,7 +142,6 @@ class DatasetStore {
     await this.fetchDsStatAsync()
 
     return Array.from({ length: this.statAmount[0] })
-    // return await this.fetchWsListAsync()
   }
 
   async removeFunctionConditionAsync(functionName: string) {
@@ -139,8 +150,6 @@ class DatasetStore {
     )
 
     await this.fetchDsStatAsync()
-
-    // this.fetchWsListAsync()
   }
 
   removeCondition({

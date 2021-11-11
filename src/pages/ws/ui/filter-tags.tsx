@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
 
+import datasetStore from '@store/dataset'
 import zoneStore from '@store/filterZone'
 import { Icon } from '@ui/icon'
 
@@ -20,6 +21,7 @@ export const FilterTags = observer(
       isGenesList && zoneStore.removeGenesList(item)
       isSamples && zoneStore.removeSample(item)
       isTags && zoneStore.removeTag(item)
+      datasetStore.fetchWsListAsync()
     }
 
     const visibleTagsData = data?.slice(0, 2)

@@ -1,4 +1,5 @@
 import { Fragment, ReactElement, useEffect, useState } from 'react'
+import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 
 import { t } from '@i18n'
@@ -85,7 +86,7 @@ export const FilterItemGenes = observer(
     return (
       <div style={{ minWidth: 75 }}>
         <ControlPanelTitle title={title}>
-          {zoneStore.selectedGenes.length > 0 && (
+          {toJS(zoneStore.selectedGenes).length > 0 && (
             <PopperButton
               title={title}
               ButtonElement={ButtonElementEdit}

@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
 import get from 'lodash/get'
+import isBoolean from 'lodash/isBoolean'
 import { observer } from 'mobx-react-lite'
 
 import { useOutsideClick } from '@core/hooks/use-outside-click'
 import { t } from '@i18n'
-import operationsStore from '@store/operations'
+import datasetStore from '@store/dataset'
+import filterStore from '@store/filterZone'
 import variantStore from '@store/variant'
 import { Button } from '@ui/button'
 import { Icon } from '@ui/icon'
@@ -40,16 +42,39 @@ const DrawerNoteModal = observer(({ close }: any) => {
     setValue(variantStore.noteText)
   }, [])
 
+  const sendTagsWithNotesRequest = () => {
+    let params = ''
+
+    Object.entries(variantStore.tagsWithNotes).map((tagData, index) => {
+      params += `"${tagData[0]}":${
+        isBoolean(tagData[1]) ? tagData[1] : `"${tagData[1]}"`
+      }`
+
+      if (Object.entries(variantStore.tagsWithNotes)[index + 1]) {
+        params += `,`
+      }
+    })
+
+    variantStore.fetchSelectedTagsAsync(params)
+    filterStore.fetchTagSelectAsync()
+    datasetStore.fetchWsTagsAsync()
+    datasetStore.fetchWsListAsync()
+  }
+
   const handleSaveNoteAsync = async () => {
-    await operationsStore.createNoteAsync(value)
+    variantStore.updateTagsWithNotes(['_note', value])
+
     variantStore.setNoteText(value)
+
+    sendTagsWithNotesRequest()
     close()
   }
 
   const deleteNoteAsync = async () => {
-    await operationsStore.createNoteAsync('')
+    variantStore.updateTagsWithNotes(['_note', true], 'remove')
     variantStore.setNoteText('')
     setValue('')
+    sendTagsWithNotesRequest()
     close()
   }
 
@@ -73,28 +98,34 @@ const DrawerNoteModal = observer(({ close }: any) => {
         onChange={(e: any) => setValue(e.target.value)}
       />
 
-      <div className="flex mt-4">
-        {variantStore.noteText && (
-          <Button
-            text={t('general.delete')}
-            onClick={deleteNoteAsync}
-            hasBackground={false}
-            className="text-black border-red-secondary mr-auto"
-          />
-        )}
+      <div className="flex justify-between mt-4">
+        <div>
+          {variantStore.noteText && (
+            <Button
+              text={t('general.delete')}
+              onClick={deleteNoteAsync}
+              hasBackground={false}
+              className="text-black border-red-secondary hover:text-white hover:bg-red-secondary"
+            />
+          )}
+        </div>
 
-        <Button
-          text={t('general.cancel')}
-          onClick={close}
-          hasBackground={false}
-          className="text-black mr-3 ml-auto"
-        />
-        <Button
-          text="Save note"
-          hasBackground={false}
-          className="text-black"
-          onClick={handleSaveNoteAsync}
-        />
+        <div className="flex items-center">
+          <Button
+            text={t('general.cancel')}
+            onClick={close}
+            hasBackground={false}
+            className="ml-4 text-black hover:bg-blue-bright hover:text-white"
+          />
+
+          <Button
+            text="Save note"
+            disabled={!value || !value.trim()}
+            hasBackground={false}
+            className="ml-4 text-black hover:bg-blue-bright hover:text-white"
+            onClick={handleSaveNoteAsync}
+          />
+        </div>
       </div>
     </div>
   )

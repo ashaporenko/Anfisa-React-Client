@@ -16,6 +16,7 @@ import { PopperButton } from '@components/popper-button'
 import { VariantDrawer } from '@components/variant/drawer'
 import { ModalSaveDataset } from '@pages/filter/ui/query-builder/ui/modal-save-dataset'
 import { ControlPanel } from './ui/control-panel'
+import { ModalNotes } from './ui/modal-notes'
 import { TableVariants } from './ui/table-variants'
 
 export const WSPage = observer(
@@ -55,6 +56,8 @@ export const WSPage = observer(
     return (
       <Fragment>
         {dtreeStore.isModalSaveDatasetVisible && <ModalSaveDataset />}
+
+        {variantStore.isModalNotesVisible && <ModalNotes />}
 
         <div className="h-full flex flex-col">
           <Header>

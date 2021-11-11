@@ -93,6 +93,7 @@ export const en = {
     notesFor: 'Notes for',
     tagExists: 'Tag is already exists',
     showSelectionOnly: 'Show selection only',
+    saveNote: 'Save note',
   },
   filter: {
     method: 'Filtering method',
